@@ -41,6 +41,9 @@ IP地址 + 端口号（IP:Port）
 
 当我们有两个相互通信的端点（endpoint）时，我们称之为Sockets
 
+
+Socket是一个Duplex流
+
 createConnection
 - net.createConnection(options[, connectListener])
 - net.createConnection(path[, connectListener]) for IPC connections.
