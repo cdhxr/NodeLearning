@@ -10,18 +10,34 @@ const clients =[]
 server.on('connection', (socket) => {
     console.log('New client connected');
     
+    const clientId = clients.length + 1;
+    
+    // 有人加入时，为聊天室发出提示信息
+    clients.map((client)=>{
+        //将已有的客户端id写入socket中
+        socket.write(`User ${client.id} is joined\n`);
+    })
+
+    socket.write(`id-${clientId}`);
+    
     // socket遇到data事件时，将回调函数入栈事件循环
     socket.on('data', (data) => {
-        //data是一个Buffer对象，所以要转换成字符串
-        clients.map((s)=>{
-            s.write(data);
+        const dataStr = data.toString('utf-8');
+        const id = dataStr.substring(0, dataStr.indexOf('-'));
+        const message = dataStr.substring(dataStr.indexOf("-message-") + 9);
+
+        //将消息写在每个客户端中，会触发对应socket的data事件
+        clients.map((client)=>{
+            client.socket.write(`> User ${id}: ${message}`);
         })
-        clients.push(socket);
     });
 
-    // socket.on('end', () => {
-    //     console.log('Client disconnected');
-    // });
+    clients.push({id:clientId.toString(), socket:socket});
+    
+    // 有人离开时，为聊天室发出提示信息
+    socket.on('end', () => {
+        client.socket.write(`User ${clientId} has disconnected\n`);
+    });
 
     // socket.on('error', (err) => {
     //     console.error(`Socket error: ${err}`);
@@ -29,5 +45,5 @@ server.on('connection', (socket) => {
 })
 
 server.listen(3008, "127.0.0.1" ,() => {
-    console.log('Server is listening on port 30S08',server.address());
+    console.log('Server is listening on port 3008',server.address());
 })
