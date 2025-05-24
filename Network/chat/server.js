@@ -9,16 +9,18 @@ const clients =[]
 // 这里，socket可以是多个的socket对象，代表不同的客户端连接
 server.on('connection', (socket) => {
     console.log('New client connected');
-    
+    // 每个客户端连接时，都会分配一个唯一的id
     const clientId = clients.length + 1;
     
     // 有人加入时，为聊天室发出提示信息
     clients.map((client)=>{
         //将已有的客户端id写入socket中
-        socket.write(`User ${client.id} is joined\n`);
+        client.socket.write(`User ${client.id} is joined!`);
     })
 
     socket.write(`id-${clientId}`);
+    // 有人连接时，将其加入到clients数组中
+    clients.push({id:clientId.toString(), socket});
     
     // socket遇到data事件时，将回调函数入栈事件循环
     socket.on('data', (data) => {
@@ -32,16 +34,15 @@ server.on('connection', (socket) => {
         })
     });
 
-    clients.push({id:clientId.toString(), socket:socket});
     
     // 有人离开时，为聊天室发出提示信息
     socket.on('end', () => {
-        client.socket.write(`User ${clientId} has disconnected\n`);
+        clients.map((client) => {
+            client.socket.write(`User ${clientId} left!`);
+        });
     });
 
-    // socket.on('error', (err) => {
-    //     console.error(`Socket error: ${err}`);
-    // });
+
 })
 
 server.listen(3008, "127.0.0.1" ,() => {

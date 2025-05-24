@@ -1,5 +1,4 @@
 const net = require('net');
-const { resolve } = require('path');
 const readline = require('readline/promises');
 
 const rl = readline.createInterface({
@@ -49,15 +48,18 @@ const socket =  net.createConnection(
         ask();
 
         socket.on("data",async (data)=>{
-            if(data.toString("utf-8").startsWith("id-")) {
+            // log an empty line
+            console.log();
+            // move the cursor one line up
+            await moveCursor(0, -1);
+            // clear that line that cursor just moved into
+            await clearLine(0);
+            if(data.toString("utf-8").substring(0, 2) === "id") {
                 // 如果是id消息，直接输出
                 id = data.toString("utf-8").substring(3);
                 console.log(`Your id is ${id}\n`);
 
             }else{
-                console.log();
-                await moveCursor(0,-1);
-                await clearLine(0)
                 // data是一个Buffer对象，所以要转换成字符串
                 console.log(data.toString("utf-8"));
             }
