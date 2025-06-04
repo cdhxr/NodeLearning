@@ -34,6 +34,41 @@ server.on('request', async (request, response) => {
         fileStream.pipe(response);
     }
 
+    if(request.url === "/login" && request.method === 'POST') {
+        response.setHeader('Content-Type', 'application/json');
+        response.statusCode = 200; // 设置响应状态码为200 OK
+
+        const body ={
+            message: 'Logging for you in ...', 
+        }
+        //使用end方法，表明请求结束，否则会一直加载
+        response.end(JSON.stringify(body));
+    }
+
+    if(request.url === "/user" && request.method === 'PUT') {
+        response.setHeader('Content-Type', 'application/json');
+        response.statusCode = 200; // 设置响应状态码为200 OK
+
+        const body ={
+            message: 'Updating your info ...', 
+        }
+        //使用end方法，表明请求结束，否则会一直加载
+        response.end(JSON.stringify(body));
+    }
+
+    //upload route
+    if(request.url === "/upload" && request.method === 'PUT'){
+        response.setHeader('Content-Type', 'application/json');
+        //create a empty file
+        const fileHandle = await fs.open('./storage/image.jpeg', 'w');
+
+        const fileStream = fileHandle.createStream();
+        request.pipe(fileStream);
+        //end事件表明在Stream的传输完成
+        request,on('end', () => {
+            response.end(JSON.stringify({message: 'File uploaded successfully'}));
+        });
+    }
 });
 
 server.listen(9000, ()=>{
