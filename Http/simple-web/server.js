@@ -4,7 +4,7 @@ const fs = require('node:fs/promises');
 const server = http.createServer((req, res) => {});
 
 server.on('request', async (request, response) => {
-    //console.log(request.method, request.url);
+    // request.Method与请求的资源有关，是规范定义好的
     if(request.method === 'GET' && request.url === '/') {
         response.setHeader('Content-Type', 'text/html');
         //write可以将数据写入至response body中
@@ -14,6 +14,23 @@ server.on('request', async (request, response) => {
         //pipe方法可以将一个可读流的内容传递给一个可写流,
         // 等价于.on(data, (data) => response.write(data))不过要自己处理Backpressure
         //在这里，fileStream是可读流，response是可写流
+        fileStream.pipe(response);
+    }
+
+    //相比HTML，只是修改了文件名
+    if(request.method === 'GET' && request.url === '/styles.css') {
+        response.setHeader('Content-Type', 'text/css');
+        const fileHandle = await fs.open('./public/styles.css',"r")
+        const fileStream = fileHandle.createReadStream();
+
+        fileStream.pipe(response);
+    }
+
+    if(request.method === 'GET' && request.url === '/scripts.js') {
+        response.setHeader('Content-Type', 'text/javascript');
+        const fileHandle = await fs.open('./public/scripts.js',"r")
+        const fileStream = fileHandle.createReadStream();
+
         fileStream.pipe(response);
     }
 
